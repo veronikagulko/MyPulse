@@ -1,0 +1,47 @@
+---
+import Layout from "../components/Layout.astro"
+import Form from "../components/Form.astro"
+
+const { cookies, redirect } = Astro
+
+// checks to see if the user is already logged in using cookies
+const accessToken = cookies.get("sb-access-token")
+const refreshToken = cookies.get("sb-refresh-token")
+
+if (accessToken && refreshToken) return redirect("/dashboard")
+---
+
+<Layout title="Signup | MyPulse" desc="Signup to MyPulse">
+    <div class="flex flex-col justify-center items-center min-h-[80vh] space-y-5">
+        <h1 class="text-center text-4xl">Sign Up</h1>
+        <Form type="signup" />
+    </div>
+
+    <script>
+        // gets the form element
+        const form = document.getElementById("form")
+
+        form?.addEventListener("submit", async (event) => {
+            // prevent default stops the default functionality so we can handle it ourselves
+            event.preventDefault()
+
+            const data = new FormData(form as HTMLFormElement)
+
+            const response = await fetch("/api/auth/signup", {
+                method: "POST",
+                body: data,
+            })
+
+            // if there are no errors and sign up is successful
+            if (response.ok) window.location.href = "/dashboard"
+            else {
+                // gets the error msg from the response
+                const text = await response.text()
+
+                // gets the error element and sets the text
+                const error = document.getElementById("error")
+                error!.textContent = text
+            }
+        })
+    </script>
+</Layout>

@@ -1,0 +1,55 @@
+---
+interface Props {
+    userData: {
+        id_number: string
+        num_checkins: number
+        attendance_rate_percent: string
+        num_checkouts: number
+        checkout_rate_percent: string
+        total_hours: number
+        average_hours: number
+    }
+}
+
+const { userData } = Astro.props
+---
+
+<div>
+    {
+        userData ? (
+            <table class="w-[275px] h-[310px] text-center border-separate border-spacing-0 rounded-xl border-2">
+                <tr>
+                    <td class="border-b-2 border-r-2">Checkins:</td>
+                    <td class="border-b-2 px-2">{userData.num_checkins}</td>
+                </tr>
+
+                <tr>
+                    <td class="border-b-2 border-r-2">Attendance Rate:</td>
+                    <td class="border-b-2 px-2">{userData.attendance_rate_percent}</td>
+                </tr>
+
+                <tr>
+                    <td class="border-b-2 border-r-2">Checkouts:</td>
+                    <td class="border-b-2 px-2">{userData.num_checkouts}</td>
+                </tr>
+
+                <tr>
+                    <td class="border-b-2 border-r-2">Checkout Rate:</td>
+                    <td class="border-b-2 px-2">{userData.checkout_rate_percent}</td>
+                </tr>
+
+                <tr>
+                    <td class="border-b-2 border-r-2">Total Hours:</td>
+                    <td class="border-b-2 px-2">{userData.total_hours}</td>
+                </tr>
+
+                <tr>
+                    <td class="border-r-2">Average Hours:</td>
+                    <td>{userData.average_hours}</td>
+                </tr>
+            </table>
+        ) : (
+            <h1>Error fetching user data</h1>
+        )
+    }
+</div>

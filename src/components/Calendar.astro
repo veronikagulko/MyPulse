@@ -1,0 +1,135 @@
+---
+interface Props {
+    meetings: string[]
+    allMeetings: string[]
+}
+
+const { meetings, allMeetings } = Astro.props
+---
+
+<div class="w-[275px] aspect-square flex flex-col justify-center border-2 p-5 rounded-xl">
+    <div class="flex space-x-3 justify-center mb-3">
+        <button id="left"><img src="/chevron-left.svg" alt="left" class="w-6"/></button>
+
+        <h1 id="title" class="text-center"></h1>
+
+        <button id="right"><img src="/chevron-left.svg" alt="right" class="w-6 rotate-180"/></button>
+    </div>
+
+
+    <div id="dates" class="grid grid-cols-7 text-center"></div>
+</div>
+
+<script define:vars={{meetings, allMeetings}}>
+    let date = new Date()
+    let year = date.getFullYear()
+    let month = date.getMonth()
+
+    // saves today's date
+    const today = new Date(year, month, date.getDate()).getTime()
+
+    updateTitle()
+    generateDates()
+    setButtonClicks()
+
+    // sets event listeners for changing months
+    function setButtonClicks() {
+        const left = document.getElementById("left")
+        left?.addEventListener("click", (event) => {
+            moveMonth(-1)
+        })
+
+        const right = document.getElementById("right")
+        right?.addEventListener("click", (event) => {
+            moveMonth(1)
+        })
+    }
+
+    function moveMonth(change) {
+        // moves the month and changes the dates
+        month += change
+        date = new Date(year, month, new Date().getDate())
+        year = date.getFullYear()
+        month = date.getMonth()
+
+        // updates the calendar
+        updateTitle()
+        generateDates()
+    }
+
+    // updates the title based on the new month and year
+    function updateTitle() {
+        const title = document.getElementById("title")
+        title.innerText = date.toLocaleString('default', { month: 'long' }) + " " + year
+    }
+    
+    // generates all the dates for the calendar
+    function generateDates() {
+        const dayStyle = "aspect-square h-[30px] leading-[30px] my-1"
+
+        const dates = document.getElementById("dates")
+        dates.innerHTML = ""
+
+        // gets the day of the week for the first day of the month
+        const firstDay = new Date(year, month, 1).getDay()
+
+        // gets the date of the last day of the last month
+        const lastMonthLastDate = new Date(year, month, 0).getDate()
+
+        // adds the last days of the last month
+        for (let i = firstDay - 1; i >= 0; i--) {
+            const dayElement = document.createElement("div")
+            dayElement.innerText = (lastMonthLastDate - i).toString()
+            dayElement.className = dayStyle + " text-[#9e9e9e]"
+            dates?.appendChild(dayElement)
+        }
+
+        // gets the date of the last day of the current month
+        const lastDate = new Date(year, month + 1, 0).getDate()
+
+        // adds the days of the current month
+        for (let i = 1; i <= lastDate; i++) {
+            const dayElement = document.createElement("div")
+            dayElement.innerText = i.toString()
+            dayElement.className = dayStyle
+
+            // checks if the day is a meeting
+            const dateString = `${year}-${(month + 1).toString().padStart(2, "0")}-${i.toString().padStart(2, "0")}`
+            const curDate = new Date(year, month, i).getTime()
+
+            // sees if it has reached today's date
+            if (curDate == today)
+                dayElement.className += " font-bold border-2 border-black rounded !leading-[26px]"
+            
+            if (allMeetings.includes(dateString)) {
+                dayElement.className += " rounded"
+
+                // checks if the meeting is in the future or in the past
+
+                // meeting is in the past
+                if (curDate < today) {
+                    // checks if the person went to the meeting or not and colors appropriately
+                    if (meetings.includes(dateString))
+                        dayElement.className += " bg-[#77dd77]"
+                    else
+                        dayElement.className += " bg-[#e36873]"
+                }
+                // meeting is in the future
+                else dayElement.className += " bg-[#dbdbdb]"
+            }
+
+            dates?.appendChild(dayElement)
+        }
+
+        // gets the day of the week of the last day of the current month
+        const lastDay = new Date(year, month + 1, 0).getDay()
+
+        // adds the days of the next month
+        for (let i = lastDay + 1; i < 7; i++) {
+            const dayElement = document.createElement("div")
+            dayElement.innerText = (i - lastDay).toString()
+            dayElement.className = dayStyle
+            dates?.appendChild(dayElement)
+        }
+    }
+</script>
